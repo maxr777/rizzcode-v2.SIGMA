@@ -105,6 +105,91 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html', 
+                         username=current_user.username, 
+                         level=current_user.level)
+
+@app.route('/profile/change-username', methods=['POST'])
+@login_required
+def change_username():
+    new_username = request.form.get('new_username', '').strip()
+    
+    if not new_username:
+        return render_template('profile.html', 
+                             username=current_user.username, 
+                             level=current_user.level,
+                             error_message="Username cannot be empty.")
+    
+    # Check if username already exists
+    if User.query.filter_by(username=new_username).first():
+        return render_template('profile.html', 
+                             username=current_user.username, 
+                             level=current_user.level,
+                             error_message="Username already exists. Please choose another.")
+    
+    # Update username
+    current_user.username = new_username
+    db.session.commit()
+    
+    return render_template('profile.html', 
+                         username=current_user.username, 
+                         level=current_user.level,
+                         success_message="Username updated successfully!")
+
+@app.route('/profile/change-password', methods=['POST'])
+@login_required
+def change_password():
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+    
+    # Verify current password
+    if not check_password_hash(current_user.password, current_password):
+        return render_template('profile.html', 
+                             username=current_user.username, 
+                             level=current_user.level,
+                             error_message="Current password is incorrect.")
+    
+    # Check if new passwords match
+    if new_password != confirm_password:
+        return render_template('profile.html', 
+                             username=current_user.username, 
+                             level=current_user.level,
+                             error_message="New passwords do not match.")
+    
+    # Check password length
+    if len(new_password) < 6:
+        return render_template('profile.html', 
+                             username=current_user.username, 
+                             level=current_user.level,
+                             error_message="Password must be at least 6 characters long.")
+    
+    # Update password
+    current_user.password = generate_password_hash(new_password)
+    db.session.commit()
+    
+    return render_template('profile.html', 
+                         username=current_user.username, 
+                         level=current_user.level,
+                         success_message="Password updated successfully!")
+
+@app.route('/profile/delete-account', methods=['POST'])
+@login_required
+def delete_account():
+    user_id = current_user.id
+    logout_user()
+    
+    # Delete the user from database
+    user_to_delete = User.query.get(user_id)
+    if user_to_delete:
+        db.session.delete(user_to_delete)
+        db.session.commit()
+    
+    return redirect(url_for('register'))
+
 def open_browser():
     webbrowser.open_new("http://localhost:5000/login")
 
