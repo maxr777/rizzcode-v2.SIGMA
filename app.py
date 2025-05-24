@@ -5,6 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_wtf import CSRFProtect
 import webbrowser
 import threading
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
@@ -110,5 +111,6 @@ def open_browser():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    threading.Timer(1.0, open_browser).start()
+    if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+        threading.Timer(1.0, open_browser).start()
     app.run(debug=True)
