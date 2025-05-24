@@ -12,6 +12,21 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 db = SQLAlchemy(app)
 csrf = CSRFProtect(app)
 
+problems = [
+    {"id": 1, "title": "Two Sum", "difficulty": "Easy", "completed": True, "language": "javascript"},
+    {"id": 2, "title": "Add Two Numbers", "difficulty": "Medium", "completed": False, "language": "python"},
+    {"id": 3, "title": "Longest Substring Without Repeating Characters", "difficulty": "Medium", "completed": True, "language": "java"},
+    {"id": 4, "title": "Median of Two Sorted Arrays", "difficulty": "Hard", "completed": False, "language": "cpp"},
+    {"id": 5, "title": "Palindrome Number", "difficulty": "Easy", "completed": False, "language": "javascript"},
+    {"id": 6, "title": "Regular Expression Matching", "difficulty": "Hard", "completed": False, "language": "python"},
+    {"id": 7, "title": "Container With Most Water", "difficulty": "Medium", "completed": True, "language": "java"},
+    {"id": 8, "title": "Longest Palindromic Substring", "difficulty": "Medium", "completed": False, "language": "python"},
+    {"id": 9, "title": "String to Integer (atoi)", "difficulty": "Medium", "completed": False, "language": "cpp"},
+    {"id": 10, "title": "Merge k Sorted Lists", "difficulty": "Hard", "completed": False, "language": "java"},
+    {"id": 11, "title": "4Sum", "difficulty": "Medium", "completed": False, "language": "python"},
+    {"id": 12, "title": "Remove Nth Node From End of List", "difficulty": "Medium", "completed": False, "language": "javascript"}
+]
+
 login_manager = LoginManager()
 login_manager.login_view = 'login'  # Redirect to login if not authenticated
 login_manager.init_app(app)
@@ -67,7 +82,21 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return f'Hello {current_user.username}, your level is {current_user.level}'
+    # Example: problems could come from DB; here is a static list for demo
+    def index():
+        return render_template('your_template.html', problems=problems, username='Alice', level=5)
+
+    # Calculate progress percentage
+    completed_count = sum(p['completed'] for p in problems)
+    total_problems = len(problems)
+    progress = int((completed_count / total_problems) * 100) if total_problems else 0
+
+    return render_template('index.html',
+                           username=current_user.username,
+                           level=current_user.level,
+                           progress=progress,
+                           problems=problems)
+
 
 @app.route('/logout')
 @login_required
