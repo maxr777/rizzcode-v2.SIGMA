@@ -190,12 +190,68 @@ def delete_account():
     
     return redirect(url_for('register'))
 
+@app.route('/api/articles', methods=['GET'])
+@login_required
+def get_articles():
+    # Example article list, replace with DB query if needed
+    articles = [
+        {"id": 1, "title": "Intro to Flask", "content": "Flask is a micro web framework..."},
+        {"id": 2, "title": "REST APIs with Flask", "content": "Building APIs is easy with Flask..."}
+    ]
+    return {"articles": articles}
+
+@app.route('/articles')
+@login_required
+def articles_page():
+    articles = [
+        {
+            "title": "Introduction to Algorithms", 
+            "language": "all",
+            "content": "This is an introductory article about algorithms that applies to all programming languages. Algorithms are step-by-step procedures for solving problems. They form the foundation of computer science and are essential for efficient programming."
+        },
+        {
+            "title": "Data Structures in JavaScript", 
+            "language": "Javascript",
+            "content": "Learn about data structures in JavaScript, including arrays, objects, maps, and sets. Understanding these structures is crucial for writing efficient and maintainable JavaScript code."
+        },
+        {
+            "title": "Python for Beginners", 
+            "language": "Python",
+            "content": "Get started with Python programming language. Learn syntax, data types, and basic concepts. Python is known for its readability and simplicity, making it an excellent language for beginners."
+        },
+        {
+            "title": "Java Collections Framework", 
+            "language": "Java",
+            "content": "An overview of Java's Collections Framework including Lists, Sets, Maps and more. The Collections Framework provides a unified architecture for representing and manipulating collections in Java."
+        },
+        {
+            "title": "Memory Management in C++", 
+            "language": "Cpp",
+            "content": "Understanding memory allocation, pointers, and how to prevent memory leaks in C++. Proper memory management is essential for writing efficient and bug-free C++ programs."
+        },
+        {
+            "title": "Web Development Best Practices", 
+            "language": "all",
+            "content": "Best practices for web development are essential regardless of your programming language. This article covers key principles like responsive design, accessibility, performance optimization, and security considerations."
+        },
+        {
+            "title": "The Future of AI", 
+            "language": "all",
+            "content": "Artificial intelligence is rapidly evolving across all programming ecosystems. Learn about current trends, future predictions, and how AI is transforming software development and various industries."
+        }
+    ]
+    
+    return render_template('articles.html', 
+                          username=current_user.username, 
+                          level=current_user.level,
+                          articles=articles)
+
 def open_browser():
     webbrowser.open_new("http://localhost:5000/login")
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+       db.create_all()
     if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
         threading.Timer(1.0, open_browser).start()
     app.run(debug=True)

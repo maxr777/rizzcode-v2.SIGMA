@@ -423,6 +423,10 @@
     </div>
 
 <script>
+document.getElementById('articlesButton').addEventListener('click', function() {
+  window.location.href = '/articles';
+});
+
 const problems = [
     {% for problem in problems %}
     { 
