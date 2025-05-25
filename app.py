@@ -19,92 +19,138 @@ def get_problems():
         # Divide and Conquer
         {
             "id": 1,
-            "title": "Find Kth Smallest Element in Two Sorted Arrays",
+            "title": "Find 7th Smallest Element in Two Sorted Arrays",
             "difficulty": "Hard",
             "completed": False,
             "type": "divide and conquer",
             "content": (
-                "Given two sorted arrays nums1 and nums2 of size m and n respectively, "
-                "return the kth smallest element of the combined sorted array."
-            )
+                "You have two sorted arrays: nums1 = [1, 3, 8, 9, 15] and nums2 = [7, 11, 18, 19, 21, 25]. "
+                "If you were to merge these arrays into one big sorted array, it would look like: "
+                "[1, 3, 7, 8, 9, 11, 15, 18, 19, 21, 25]. Your task is to find the 7th smallest element "
+                "in this combined array without actually merging the arrays. Use a divide and conquer approach "
+                "that runs in O(log(min(m,n))) time by eliminating half of one array at each step."
+            ),
+            "answer": 15
         },
         {
             "id": 2,
-            "title": "Count Inversions in an Array",
+            "title": "Count Inversions in Array [5, 2, 6, 1]",
             "difficulty": "Medium",
             "completed": False,
             "type": "divide and conquer",
             "content": (
-                "Given an array of integers, count the number of inversions needed to sort the array. "
-                "(An inversion is a pair (i, j) such that i < j and arr[i] > arr[j])."
-            )
+                "Given the array [5, 2, 6, 1], count how many inversions exist. An inversion is when "
+                "a larger number appears before a smaller number. For example, (5,2) is an inversion "
+                "because 5 > 2 but 5 comes first. Similarly (5,1), (2,1), (6,1), and (5,2) are all "
+                "inversions in this array. Use a divide and conquer approach similar to merge sort "
+                "to count these efficiently in O(n log n) time rather than checking every pair."
+            ),
+            "answer": 5
         },
 
         # Graph Algorithms
         {
             "id": 3,
-            "title": "Number of Connected Components in an Undirected Graph",
+            "title": "Connected Components in Graph with 6 Nodes",
             "difficulty": "Medium",
             "completed": False,
             "type": "graph algorithms",
             "content": (
-                "Given n nodes labeled from 0 to n-1 and a list of undirected edges, "
-                "return the number of connected components in the graph."
-            )
+                "You have an undirected graph with 6 nodes labeled 0, 1, 2, 3, 4, 5. "
+                "The edges are: (0,1), (1,2), and (3,4). This means node 0 connects to node 1, "
+                "node 1 connects to node 2, and node 3 connects to node 4. Nodes 5 is completely "
+                "isolated with no connections. A connected component is a group of nodes where "
+                "you can reach any node from any other node in that group by following edges. "
+                "Count how many separate connected components exist in this graph."
+            ),
+            "answer": 3
         },
         {
             "id": 4,
-            "title": "Detect Cycle in a Directed Graph",
+            "title": "Cycle Detection in Specific Directed Graph",
             "difficulty": "Hard",
             "completed": False,
             "type": "graph algorithms",
             "content": (
-                "Given a directed graph, determine if it contains any cycle."
-            )
+                "You have a directed graph with 4 nodes (0, 1, 2, 3) and these directed edges: "
+                "0→1 (0 points to 1), 1→2 (1 points to 2), 2→3 (2 points to 3), and 3→1 (3 points back to 1). "
+                "A cycle exists if you can start at some node and follow the directed edges to eventually "
+                "return to where you started. In this case, you can go 1→2→3→1, which forms a cycle. "
+                "Use DFS with a recursion stack to detect if this directed graph contains any cycle. "
+                "Return 1 if a cycle exists, 0 if no cycle exists."
+            ),
+            "answer": 1
         },
 
         # Dynamic Programming
         {
             "id": 5,
-            "title": "Longest Increasing Subsequence",
+            "title": "LIS Length for [10, 9, 2, 5, 3, 7, 101, 18]",
             "difficulty": "Medium",
             "completed": False,
             "type": "dynamic programming",
             "content": (
-                "Given an integer array nums, return the length of the longest strictly increasing subsequence."
-            )
+                "Find the length of the longest increasing subsequence in [10, 9, 2, 5, 3, 7, 101, 18]. "
+                "A subsequence doesn't have to be contiguous - you can skip elements. For example, "
+                "[2, 5, 7, 101] is a valid increasing subsequence of length 4, and [2, 3, 7, 18] is "
+                "another one. You need to find the longest possible such subsequence. Use dynamic "
+                "programming where dp[i] represents the length of the longest increasing subsequence "
+                "ending at index i."
+            ),
+            "answer": 4
         },
         {
             "id": 6,
-            "title": "Edit Distance",
+            "title": "Edit Distance: 'horse' to 'ros'",
             "difficulty": "Hard",
             "completed": False,
             "type": "dynamic programming",
             "content": (
-                'Given two strings word1 and word2, return the minimum number of operations required to convert word1 to word2. '
-                'Operations allowed: insert, delete, replace a character.'
-            )
+                "Calculate the minimum number of operations needed to transform the string 'horse' "
+                "into the string 'ros'. You can perform three types of operations: insert a character, "
+                "delete a character, or replace a character. For example, one way is: "
+                "horse → rorse (replace h with r) → rose (delete r) → ros (delete e). "
+                "That's 3 operations. Use dynamic programming with a 2D table where dp[i][j] represents "
+                "the minimum operations to transform the first i characters of 'horse' into the first j "
+                "characters of 'ros'."
+            ),
+            "answer": 3
         },
 
         # Greedy Algorithms
         {
             "id": 7,
-            "title": "Interval Scheduling - Maximum Number of Non-overlapping Intervals",
+            "title": "Maximum Non-overlapping Intervals",
             "difficulty": "Medium", 
             "completed": False,
             "type": "greedy algorithms", 
-            "content": "Given a collection of intervals, find the maximum number of intervals you can select without any overlaps."
+            "content": (
+                "You have these time intervals: [(1,3), (2,6), (8,10), (15,18)]. Each interval "
+                "represents a meeting with a start and end time. Two intervals overlap if one "
+                "starts before the other ends. For example, (1,3) and (2,6) overlap because "
+                "the second meeting starts at time 2, which is before the first meeting ends at time 3. "
+                "Your goal is to select the maximum number of meetings you can attend without any "
+                "time conflicts. Use a greedy approach: sort by end time and always pick the meeting "
+                "that ends earliest among the remaining options."
+            ),
+            "answer": 3
         },
         {
             "id": 8,
-            "title": "Huffman Encoding - Build Huffman Tree Length",
+            "title": "Huffman Tree Total Encoding Length",
             "difficulty": "Hard", 
             "completed": False, 
             "type": "greedy algorithms", 
             "content": (
-              'Given frequencies for characters, build a Huffman tree and return the total length (sum of frequency * depth) '
-              'of encoding.'
-            )
+                "You need to create an optimal Huffman encoding for these characters and their frequencies: "
+                "A appears 5 times, B appears 9 times, C appears 12 times, D appears 13 times, "
+                "E appears 16 times, and F appears 45 times. In Huffman encoding, more frequent "
+                "characters get shorter codes. Build the Huffman tree by repeatedly combining the "
+                "two nodes with smallest frequencies. Once you have the tree, calculate the total "
+                "encoding length, which is the sum of (frequency × depth) for each character, where "
+                "depth is how many bits are needed to encode that character."
+            ),
+            "answer": 224
         }
     ]
 
