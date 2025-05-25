@@ -149,11 +149,11 @@
           border-radius: 6px;
           transition: background-color 0.2s;
           border: 1px solid transparent;
+          cursor: pointer;
       }
 
       .problem-item:hover {
           background-color: var(--hover-color);
-          cursor: pointer;
       }
 
       .problem-item.completed {
@@ -168,35 +168,6 @@
 
       .problem-item.selected .problem-text {
           color: white;
-      }
-
-      .problem-checkbox {
-          appearance: none;
-          width: 18px;
-          height: 18px;
-          border: 2px solid var(--checkbox-border);
-          border-radius: 4px;
-          margin-right: 12px;
-          transition: all 0.2s;
-          position: relative;
-          cursor: pointer;
-          flex-shrink: 0;
-      }
-
-      .problem-checkbox:checked {
-          background-color: var(--success-color);
-          border-color: var(--success-color);
-      }
-
-      .problem-checkbox:checked::after {
-          content: "✓";
-          color: white;
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          font-size: 12px;
-          font-weight: bold;
       }
 
       .problem-text {
@@ -230,6 +201,40 @@
           gap: 15px;
           color: var(--text-color);
           font-weight: 500;
+      }
+
+      .user-stats {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+      }
+
+      .user-level {
+          font-size: 14px;
+          font-weight: 600;
+      }
+
+      .xp-container {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 12px;
+      }
+
+      .xp-bar {
+          width: 120px;
+          height: 8px;
+          background-color: var(--progress-bg);
+          border-radius: 4px;
+          overflow: hidden;
+          position: relative;
+      }
+
+      .xp-fill {
+          height: 100%;
+          background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+          border-radius: 4px;
+          transition: width 0.3s ease;
       }
 
       .theme-toggle {
@@ -383,6 +388,11 @@
           background-color: #45a049;
       }
 
+      .submit-button:disabled {
+          background-color: #ccc;
+          cursor: not-allowed;
+      }
+
       /* Answer checking styles */
       .answer-area {
           margin-top: 15px;
@@ -483,7 +493,16 @@
     <div class="main-content">
         <div class="header-bar">
             <div class="user-info">
-                <span><a href="/profile">{{ username }}</a> | Level {{ level }}</span>
+                <a href="/profile" style="text-decoration: none; color: inherit;">{{ username }}</a>
+                <div class="user-stats">
+                    <div class="user-level">Level {{ level }}</div>
+                    <div class="xp-container">
+                        <span id="xpText">{{ xp }} XP</span>
+                        <div class="xp-bar">
+                            <div class="xp-fill" id="xpFill"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
                 <svg class="theme-icon" id="themeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -524,12 +543,40 @@ const problems = [
         completed: {{ problem.completed|lower }}, 
         type: "{{ problem.type }}",
         content: "{{ problem.content|e }}",
-        answer: {{ problem.answer }}
+        answer: {{ problem.answer }},
+        xp: {{ problem.xp }}
     }{% if not loop.last %},{% endif %}
     {% endfor %}
 ];
 
 let selectedProblemId = null;
+let currentUserLevel = {{ level }};
+let currentUserXP = {{ xp }};
+
+// XP thresholds for each level
+const xpThresholds = [0, 10, 30, 60, 100, 150, 220, 300, 400, 520, 650];
+
+function updateXPBar() {
+    const xpFill = document.getElementById('xpFill');
+    const xpText = document.getElementById('xpText');
+    
+    // Find current level thresholds
+    const currentLevelXP = xpThresholds[currentUserLevel - 1] || 0;
+    const nextLevelXP = xpThresholds[currentUserLevel] || xpThresholds[xpThresholds.length - 1];
+    
+    // Calculate progress within current level
+    const progressXP = currentUserXP - currentLevelXP;
+    const neededXP = nextLevelXP - currentLevelXP;
+    const percentage = Math.min((progressXP / neededXP) * 100, 100);
+    
+    xpFill.style.width = percentage + '%';
+    
+    if (currentUserLevel >= xpThresholds.length) {
+        xpText.textContent = `${currentUserXP} XP (Max Level)`;
+    } else {
+        xpText.textContent = `${progressXP}/${neededXP} XP`;
+    }
+}
 
 function renderProblems() {
     const problemList = document.getElementById('problemList');
@@ -542,22 +589,19 @@ function renderProblems() {
     problemList.innerHTML = filteredProblems.map(problem => `
         <div class="problem-item ${problem.completed ? 'completed' : ''} ${selectedProblemId === problem.id ? 'selected' : ''}" 
              onclick="selectProblem(${problem.id})">
-            <input type="checkbox" 
-                   class="problem-checkbox" 
-                   ${problem.completed ? 'checked' : ''} 
-                   onclick="event.stopPropagation(); toggleProblemCompletion(${problem.id});">
             <div class="problem-text">
                 <strong>${problem.title}</strong><br>
-                <small>${problem.difficulty} • ${problem.type.charAt(0).toUpperCase() + problem.type.slice(1)}</small>
+                <small>${problem.difficulty} • ${problem.type.charAt(0).toUpperCase() + problem.type.slice(1)} • ${problem.xp} XP</small>
             </div>
         </div>
     `).join('');
 }
 
-function checkAnswer(problemId) {
+async function checkAnswer(problemId) {
     const problem = problems.find(p => p.id === problemId);
     const answerInput = document.getElementById('answerInput');
     const feedback = document.getElementById('answerFeedback');
+    const submitButton = document.querySelector('.submit-button');
     
     if (!answerInput || !feedback || !problem) return;
     
@@ -568,16 +612,53 @@ function checkAnswer(problemId) {
         return;
     }
     
-    if (userAnswer === problem.answer) {
-        feedback.innerHTML = '<div class="feedback success">✅ Correct! Well done.</div>';
-        // Auto-mark as completed
-        if (!problem.completed) {
+    // Disable button while submitting
+    submitButton.disabled = true;
+    submitButton.textContent = 'Checking...';
+    
+    try {
+        const response = await fetch('/submit_answer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                problem_id: problemId,
+                answer: userAnswer
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            feedback.innerHTML = `<div class="feedback success">${result.message}</div>`;
+            
+            // Update problem completion status
             problem.completed = true;
+            
+            // Update user stats if they changed
+            if (result.new_level !== currentUserLevel || result.new_xp !== currentUserXP) {
+                currentUserLevel = result.new_level;
+                currentUserXP = result.new_xp;
+                
+                // Update header display
+                const userLevel = document.querySelector('.user-level');
+                userLevel.textContent = `Level ${currentUserLevel}`;
+                updateXPBar();
+            }
+            
             renderProblems();
             selectProblem(problemId); // Refresh the problem view
+        } else {
+            feedback.innerHTML = `<div class="feedback error">${result.message}</div>`;
         }
-    } else {
-        feedback.innerHTML = '<div class="feedback error">❌ Incorrect. Try again!</div>';
+    } catch (error) {
+        feedback.innerHTML = '<div class="feedback error">Error submitting answer. Please try again.</div>';
+        console.error('Error:', error);
+    } finally {
+        // Re-enable button
+        submitButton.disabled = false;
+        submitButton.textContent = 'Check Answer';
     }
 }
 
@@ -601,6 +682,10 @@ function selectProblem(problemId) {
                 <div class="meta-item">
                     <div class="meta-label">Type</div>
                     <div class="meta-value">${problem.type.charAt(0).toUpperCase() + problem.type.slice(1)}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">XP Reward</div>
+                    <div class="meta-value">${problem.xp} XP</div>
                 </div>
                 <div class="meta-item">
                     <div class="meta-label">Status</div>
@@ -627,18 +712,6 @@ function selectProblem(problemId) {
     `;
     
     renderProblems();
-}
-
-function toggleProblemCompletion(problemId) {
-    const problem = problems.find(p => p.id === problemId);
-    if (problem) {
-        problem.completed = !problem.completed;
-        renderProblems();
-        
-        if (selectedProblemId === problemId) {
-            selectProblem(problemId);
-        }
-    }
 }
 
 // Theme toggle functionality
@@ -695,5 +768,6 @@ document.getElementById('typeDropdown').addEventListener('change', renderProblem
 
 // Initialize the app
 renderProblems();
+updateXPBar();
 </script>
 </html>

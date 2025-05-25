@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -6,6 +6,7 @@ from flask_wtf import CSRFProtect
 import webbrowser
 import threading
 import os
+import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
@@ -13,8 +14,31 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 db = SQLAlchemy(app)
 csrf = CSRFProtect(app)
 
+def calculate_level_from_xp(xp):
+    """Calculate level based on XP with exponential scaling"""
+    if xp < 10:
+        return 1
+    elif xp < 30:
+        return 2
+    elif xp < 60:
+        return 3
+    elif xp < 100:
+        return 4
+    elif xp < 150:
+        return 5
+    elif xp < 220:
+        return 6
+    elif xp < 300:
+        return 7
+    elif xp < 400:
+        return 8
+    elif xp < 520:
+        return 9
+    else:
+        return 10
+
 def get_problems():
-    """Return the list of problems - shared between routes"""
+    """Return the list of problems with XP values"""
     return [
         # Divide and Conquer
         {
@@ -23,6 +47,7 @@ def get_problems():
             "difficulty": "Hard",
             "completed": False,
             "type": "divide and conquer",
+            "xp": 25,
             "content": (
                 "You have two sorted arrays: nums1 = [1, 3, 8, 9, 15] and nums2 = [7, 11, 18, 19, 21, 25]. "
                 "If you were to merge these arrays into one big sorted array, it would look like: "
@@ -38,6 +63,7 @@ def get_problems():
             "difficulty": "Medium",
             "completed": False,
             "type": "divide and conquer",
+            "xp": 15,
             "content": (
                 "Given the array [5, 2, 6, 1], count how many inversions exist. An inversion is when "
                 "a larger number appears before a smaller number. For example, (5,2) is an inversion "
@@ -55,6 +81,7 @@ def get_problems():
             "difficulty": "Medium",
             "completed": False,
             "type": "graph algorithms",
+            "xp": 12,
             "content": (
                 "You have an undirected graph with 6 nodes labeled 0, 1, 2, 3, 4, 5. "
                 "The edges are: (0,1), (1,2), and (3,4). This means node 0 connects to node 1, "
@@ -71,6 +98,7 @@ def get_problems():
             "difficulty": "Hard",
             "completed": False,
             "type": "graph algorithms",
+            "xp": 20,
             "content": (
                 "You have a directed graph with 4 nodes (0, 1, 2, 3) and these directed edges: "
                 "0→1 (0 points to 1), 1→2 (1 points to 2), 2→3 (2 points to 3), and 3→1 (3 points back to 1). "
@@ -89,6 +117,7 @@ def get_problems():
             "difficulty": "Medium",
             "completed": False,
             "type": "dynamic programming",
+            "xp": 18,
             "content": (
                 "Find the length of the longest increasing subsequence in [10, 9, 2, 5, 3, 7, 101, 18]. "
                 "A subsequence doesn't have to be contiguous - you can skip elements. For example, "
@@ -105,6 +134,7 @@ def get_problems():
             "difficulty": "Hard",
             "completed": False,
             "type": "dynamic programming",
+            "xp": 30,
             "content": (
                 "Calculate the minimum number of operations needed to transform the string 'horse' "
                 "into the string 'ros'. You can perform three types of operations: insert a character, "
@@ -123,7 +153,8 @@ def get_problems():
             "title": "Maximum Non-overlapping Intervals",
             "difficulty": "Medium", 
             "completed": False,
-            "type": "greedy algorithms", 
+            "type": "greedy algorithms",
+            "xp": 14,
             "content": (
                 "You have these time intervals: [(1,3), (2,6), (8,10), (15,18)]. Each interval "
                 "represents a meeting with a start and end time. Two intervals overlap if one "
@@ -140,7 +171,8 @@ def get_problems():
             "title": "Huffman Tree Total Encoding Length",
             "difficulty": "Hard", 
             "completed": False, 
-            "type": "greedy algorithms", 
+            "type": "greedy algorithms",
+            "xp": 35,
             "content": (
                 "You need to create an optimal Huffman encoding for these characters and their frequencies: "
                 "A appears 5 times, B appears 9 times, C appears 12 times, D appears 13 times, "
@@ -155,7 +187,7 @@ def get_problems():
     ]
 
 login_manager = LoginManager()
-login_manager.login_view = 'login'  # Redirect to login if not authenticated
+login_manager.login_view = 'login'
 login_manager.init_app(app)
 
 class User(UserMixin, db.Model):
@@ -163,6 +195,27 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(150), unique=True)
     password = db.Column(db.String(150))
     level = db.Column(db.Integer, default=1)
+    xp = db.Column(db.Integer, default=0)
+    completed_problems = db.Column(db.Text, default='[]')  # JSON string of completed problem IDs
+
+    def get_completed_problems(self):
+        """Get list of completed problem IDs"""
+        try:
+            return json.loads(self.completed_problems)
+        except:
+            return []
+
+    def add_completed_problem(self, problem_id):
+        """Add a problem to completed list"""
+        completed = self.get_completed_problems()
+        if problem_id not in completed:
+            completed.append(problem_id)
+            self.completed_problems = json.dumps(completed)
+
+    def award_xp(self, xp_amount):
+        """Award XP and update level"""
+        self.xp += xp_amount
+        self.level = calculate_level_from_xp(self.xp)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -210,15 +263,21 @@ def login():
 @login_required
 def dashboard():
     problems = get_problems()
+    completed_problem_ids = current_user.get_completed_problems()
+    
+    # Mark completed problems
+    for problem in problems:
+        problem['completed'] = problem['id'] in completed_problem_ids
     
     # Calculate progress percentage
-    completed_count = sum(p['completed'] for p in problems)
+    completed_count = len(completed_problem_ids)
     total_problems = len(problems)
     progress = int((completed_count / total_problems) * 100) if total_problems else 0
 
     return render_template('index.html',
                            username=current_user.username,
                            level=current_user.level,
+                           xp=current_user.xp,
                            progress=progress,
                            problems=problems)
 
@@ -226,11 +285,56 @@ def dashboard():
 @login_required
 def problem_page():
     problems = get_problems()
+    completed_problem_ids = current_user.get_completed_problems()
+    
+    # Mark completed problems
+    for problem in problems:
+        problem['completed'] = problem['id'] in completed_problem_ids
     
     return render_template('problems.html', 
                           username=current_user.username, 
                           level=current_user.level,
+                          xp=current_user.xp,
                           problems=problems)
+
+@app.route('/submit_answer', methods=['POST'])
+@login_required
+@csrf.exempt
+def submit_answer():
+    data = request.get_json()
+    problem_id = data.get('problem_id')
+    user_answer = data.get('answer')
+    
+    problems = get_problems()
+    problem = next((p for p in problems if p['id'] == problem_id), None)
+    
+    if not problem:
+        return jsonify({'success': False, 'message': 'Problem not found'})
+    
+    completed_problem_ids = current_user.get_completed_problems()
+    
+    if user_answer == problem['answer']:
+        # Award XP only if not already completed
+        if problem_id not in completed_problem_ids:
+            current_user.add_completed_problem(problem_id)
+            current_user.award_xp(problem['xp'])
+            db.session.commit()
+            
+            return jsonify({
+                'success': True, 
+                'message': f'✅ Correct! +{problem["xp"]} XP earned!',
+                'new_xp': current_user.xp,
+                'new_level': current_user.level
+            })
+        else:
+            return jsonify({
+                'success': True,
+                'message': '✅ Correct! (Already completed)',
+                'new_xp': current_user.xp,
+                'new_level': current_user.level
+            })
+    else:
+        return jsonify({'success': False, 'message': '❌ Incorrect. Try again!'})
 
 @app.route('/logout')
 @login_required
@@ -243,7 +347,8 @@ def logout():
 def profile():
     return render_template('profile.html', 
                          username=current_user.username, 
-                         level=current_user.level)
+                         level=current_user.level,
+                         xp=current_user.xp)
 
 @app.route('/profile/change-username', methods=['POST'])
 @login_required
@@ -254,22 +359,23 @@ def change_username():
         return render_template('profile.html', 
                              username=current_user.username, 
                              level=current_user.level,
+                             xp=current_user.xp,
                              error_message="Username cannot be empty.")
     
-    # Check if username already exists
     if User.query.filter_by(username=new_username).first():
         return render_template('profile.html', 
                              username=current_user.username, 
                              level=current_user.level,
+                             xp=current_user.xp,
                              error_message="Username already exists. Please choose another.")
     
-    # Update username
     current_user.username = new_username
     db.session.commit()
     
     return render_template('profile.html', 
                          username=current_user.username, 
                          level=current_user.level,
+                         xp=current_user.xp,
                          success_message="Username updated successfully!")
 
 @app.route('/profile/change-password', methods=['POST'])
@@ -279,34 +385,34 @@ def change_password():
     new_password = request.form.get('new_password')
     confirm_password = request.form.get('confirm_password')
     
-    # Verify current password
     if not check_password_hash(current_user.password, current_password):
         return render_template('profile.html', 
                              username=current_user.username, 
                              level=current_user.level,
+                             xp=current_user.xp,
                              error_message="Current password is incorrect.")
     
-    # Check if new passwords match
     if new_password != confirm_password:
         return render_template('profile.html', 
                              username=current_user.username, 
                              level=current_user.level,
+                             xp=current_user.xp,
                              error_message="New passwords do not match.")
     
-    # Check password length
     if len(new_password) < 6:
         return render_template('profile.html', 
                              username=current_user.username, 
                              level=current_user.level,
+                             xp=current_user.xp,
                              error_message="Password must be at least 6 characters long.")
     
-    # Update password
     current_user.password = generate_password_hash(new_password)
     db.session.commit()
     
     return render_template('profile.html', 
                          username=current_user.username, 
                          level=current_user.level,
+                         xp=current_user.xp,
                          success_message="Password updated successfully!")
 
 @app.route('/profile/delete-account', methods=['POST'])
@@ -315,7 +421,6 @@ def delete_account():
     user_id = current_user.id
     logout_user()
     
-    # Delete the user from database
     user_to_delete = User.query.get(user_id)
     if user_to_delete:
         db.session.delete(user_to_delete)
@@ -326,7 +431,6 @@ def delete_account():
 @app.route('/api/articles', methods=['GET'])
 @login_required
 def get_articles():
-    # Example article list, replace with DB query if needed
     articles = [
         {"id": 1, "title": "Intro to Flask", "content": "Flask is a micro web framework..."},
         {"id": 2, "title": "REST APIs with Flask", "content": "Building APIs is easy with Flask..."}
@@ -383,7 +487,7 @@ def articles_page():
                 "Greedy algorithms solve problems by making a sequence of choices, each of which looks best at that moment without reconsidering previous decisions. "
                 "The idea is to pick the locally optimal option at every step with the hope that this leads to a globally optimal solution.\n\n"
                 "A classic example is interval scheduling: selecting the maximum number of non-overlapping meetings by always choosing the meeting that finishes earliest next.\n\n"
-                "Greedy approaches are usually simpler and faster than dynamic programming but don’t work for all problems because they don’t consider future consequences. "
+                "Greedy approaches are usually simpler and faster than dynamic programming but don't work for all problems because they don't consider future consequences. "
                 "\"Optimal substructure\" is required—meaning an optimal solution contains optimal solutions to subproblems—but overlapping subproblems are not necessary here.\n\n"
                 "Understanding when greedy works versus when more complex methods like dynamic programming are needed is key to applying this technique effectively."
             )
@@ -416,6 +520,7 @@ def articles_page():
     return render_template('articles.html', 
                           username=current_user.username, 
                           level=current_user.level,
+                          xp=current_user.xp,
                           articles=articles)
 
 def open_browser():
