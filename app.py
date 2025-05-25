@@ -338,39 +338,78 @@ def get_articles():
 def articles_page():
     articles = [
         {
-            "title": "Introduction to Algorithms", 
-            "language": "all",
-            "content": "This is an introductory article about algorithms that applies to all programming languages. Algorithms are step-by-step procedures for solving problems. They form the foundation of computer science and are essential for efficient programming."
+            "title": "Introduction to Divide and Conquer Algorithms",
+            "type": "Divide and Conquer",
+            "content": (
+                "Divide and conquer is a fundamental algorithmic technique that helps solve complex problems by breaking them down into smaller, "
+                "more manageable subproblems. The general approach involves three steps: dividing the problem into subproblems, conquering each subproblem "
+                "(often recursively), and then combining their solutions to solve the original problem.\n\n"
+                "For example, merge sort uses divide and conquer by splitting an array into halves, sorting each half recursively, "
+                "and then merging the sorted halves. Binary search divides the search space in half at each step to quickly find an element.\n\n"
+                "This method is powerful because it reduces the problem size exponentially, often leading to logarithmic time complexities like O(log n) or O(n log n). "
+                "Understanding recursion and how to combine results efficiently is essential when using divide and conquer. This technique is widely used in sorting, searching, "
+                "and many other algorithmic challenges."
+            )
         },
         {
-            "title": "Data Structures in JavaScript", 
-            "language": "Javascript",
-            "content": "Learn about data structures in JavaScript, including arrays, objects, maps, and sets. Understanding these structures is crucial for writing efficient and maintainable JavaScript code."
+            "title": "Basics of Graph Algorithms",
+            "type": "Graph Algorithms",
+            "content": (
+                "Graphs are data structures made up of nodes (called vertices) connected by edges. They can represent networks such as social connections, road maps, or communication systems.\n\n"
+                "There are two main types of graphs: undirected (edges have no direction) and directed (edges point from one node to another). Understanding how to represent graphs efficiently—"
+                "using adjacency lists or adjacency matrices—is important for implementing graph algorithms.\n\n"
+                "Key concepts include connected components (groups of nodes reachable from one another), cycles (paths that start and end at the same node), and traversal methods like Depth-First Search (DFS) "
+                "and Breadth-First Search (BFS). DFS explores as far as possible along a branch before backtracking, while BFS explores neighbors level by level.\n\n"
+                "Graph algorithms help solve problems like finding shortest paths, detecting cycles, or determining connectivity. Mastering these basics enables you to handle a wide range of graph-related challenges."
+            )
         },
         {
-            "title": "Python for Beginners", 
-            "language": "Python",
-            "content": "Get started with Python programming language. Learn syntax, data types, and basic concepts. Python is known for its readability and simplicity, making it an excellent language for beginners."
+            "title": "Fundamentals of Dynamic Programming",
+            "type": "Dynamic Programming",
+            "content": (
+                "Dynamic programming (DP) is an optimization technique used to solve problems with overlapping subproblems and optimal substructure. "
+                "Instead of solving the same subproblems repeatedly, DP stores their solutions in a table (memoization or tabulation) to avoid redundant work.\n\n"
+                "To use dynamic programming effectively, you must:\n"
+                "- Define the state clearly: what does each entry in your DP table represent?\n"
+                "- Determine the state transitions: how can you build up solutions from smaller subproblems?\n\n"
+                "For example, when finding the longest increasing subsequence or computing edit distance between strings, DP tables help track partial results efficiently.\n\n"
+                "While DP problems can be tricky at first due to identifying states and transitions, practicing these steps will build your ability to tackle complex optimization tasks."
+            )
         },
         {
-            "title": "Java Collections Framework", 
-            "language": "Java",
-            "content": "An overview of Java's Collections Framework including Lists, Sets, Maps and more. The Collections Framework provides a unified architecture for representing and manipulating collections in Java."
+            "title": "Understanding Greedy Algorithms",
+            "type": "Greedy Algorithms",
+            "content": (
+                "Greedy algorithms solve problems by making a sequence of choices, each of which looks best at that moment without reconsidering previous decisions. "
+                "The idea is to pick the locally optimal option at every step with the hope that this leads to a globally optimal solution.\n\n"
+                "A classic example is interval scheduling: selecting the maximum number of non-overlapping meetings by always choosing the meeting that finishes earliest next.\n\n"
+                "Greedy approaches are usually simpler and faster than dynamic programming but don’t work for all problems because they don’t consider future consequences. "
+                "\"Optimal substructure\" is required—meaning an optimal solution contains optimal solutions to subproblems—but overlapping subproblems are not necessary here.\n\n"
+                "Understanding when greedy works versus when more complex methods like dynamic programming are needed is key to applying this technique effectively."
+            )
         },
         {
-            "title": "Memory Management in C++", 
-            "language": "Cpp",
-            "content": "Understanding memory allocation, pointers, and how to prevent memory leaks in C++. Proper memory management is essential for writing efficient and bug-free C++ programs."
-        },
-        {
-            "title": "Web Development Best Practices", 
-            "language": "all",
-            "content": "Best practices for web development are essential regardless of your programming language. This article covers key principles like responsive design, accessibility, performance optimization, and security considerations."
-        },
-        {
-            "title": "The Future of AI", 
-            "language": "all",
-            "content": "Artificial intelligence is rapidly evolving across all programming ecosystems. Learn about current trends, future predictions, and how AI is transforming software development and various industries."
+            "title": "Introduction to Algorithms",
+            "type": "General",
+            "content": (
+                "Algorithms are step-by-step instructions designed to perform specific tasks or solve particular problems efficiently. They form the backbone of computer science "
+                "and software development.\n\n"
+                "'Efficiency' means using minimal time and resources while producing correct results. To achieve this, computer scientists have developed various algorithmic paradigms:\n\n"
+                
+                "- Divide and Conquer: break problems into smaller parts solved independently.\n"
+                "- Dynamic Programming: store intermediate results for overlapping subproblems.\n"
+                "- Greedy Algorithms: make locally optimal choices aiming for global optimum.\n"
+                "- Graph Algorithms: explore data structured as nodes connected by edges.\n\n"
+
+                "*Learning these paradigms provides a toolkit for approaching many computational challenges.*\n\n"
+
+                "When solving problems:\n"
+                 "- Understand what type it belongs to;\n"
+                 "- Learn its key ideas;\n"
+                 "- Practice applying them step-by-step;\n"
+                 "- Analyze time and space complexity for efficiency."
+                 "\nThis foundation will empower you to confidently tackle diverse algorithmic problems."
+            )
         }
     ]
     

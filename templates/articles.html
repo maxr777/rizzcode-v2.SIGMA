@@ -84,7 +84,7 @@
             align-items: center;
         }
 
-        .language-dropdown {
+        .type-dropdown {
             flex: 1;
             padding: 6px 10px;
             border-radius: 4px;
@@ -96,7 +96,7 @@
             transition: border-color 0.3s, background-color 0.3s, color 0.3s;
         }
 
-        .language-dropdown:hover, .language-dropdown:focus {
+        .type-dropdown:hover, .type-dropdown:focus {
             border-color: var(--primary-color);
             outline: none;
         }
@@ -285,14 +285,13 @@
         <div class="article-panel-header">
             <h2>Articles</h2>
             <div class="dropdown-container">
-                <select id="languageDropdown" class="language-dropdown">
-                    <option value="all">All Languages</option>
-                    <option value="Javascript">JavaScript</option>
-                    <option value="Python">Python</option>
-                    <option value="Java">Java</option>
-                    <option value="Cpp">C++</option>
-                    <option value="Ruby">Ruby</option>
-                    <option value="Go">Go</option>
+                <select id="typeDropdown" class="type-dropdown">
+                    <option value="all">All Types</option>
+                    <option value="General">General</option>
+                    <option value="Divide and Conquer">Divide and Conquer</option>
+                    <option value="Graph Algorithms">Graph Algorithms</option>
+                    <option value="Dynamic Programming">Dynamic Programming</option>
+                    <option value="Greedy Algorithms">Greedy Algorithms</option>
                 </select>
                 <button class="nav-button" id="problemsButton">Problems</button>
             </div>
@@ -338,7 +337,7 @@
           {
             id: {{ loop.index }},
             title: "{{ article.title }}",
-            language: "{{ article.language }}",
+            type: "{{ article.type }}",
             content: "{{ article.content|replace('\n', ' ')|replace('"', '\\"') }}"
           }{% if not loop.last %},{% endif %}
           {% endfor %}
@@ -352,18 +351,18 @@
 
         function renderArticles() {
             const articleList = document.getElementById('articleList');
-            const languageFilter = document.getElementById('languageDropdown').value;
+            const typeFilter = document.getElementById('typeDropdown').value;
             
-            const filteredArticles = languageFilter === 'all' 
+            const filteredArticles = typeFilter === 'all' 
                 ? articles 
-                : articles.filter(a => a.language === languageFilter || a.language === 'all');
+                : articles.filter(a => a.type === typeFilter);
 
             articleList.innerHTML = filteredArticles.map(article => `
                 <div class="article-item ${selectedArticleId === article.id ? 'selected' : ''}" 
                      onclick="selectArticle(${article.id})">
                     <div class="article-title">
                         <strong>${article.title}</strong><br>
-                        <small>${article.language === 'all' ? 'All Languages' : article.language}</small>
+                        <small>${article.type}</small>
                     </div>
                 </div>
             `).join('');
@@ -382,8 +381,8 @@
                     
                     <div class="article-meta">
                         <div class="meta-item">
-                            <div class="meta-label">Language</div>
-                            <div class="meta-value">${article.language === 'all' ? 'All Languages' : article.language}</div>
+                            <div class="meta-label">Type</div>
+                            <div class="meta-value">${article.type}</div>
                         </div>
                     </div>
 
@@ -453,8 +452,8 @@
             updateThemeIcon(newTheme);
         });
 
-        // Language filter functionality
-        document.getElementById('languageDropdown').addEventListener('change', renderArticles);
+        // Type filter functionality
+        document.getElementById('typeDropdown').addEventListener('change', renderArticles);
 
         // Initialize the app
         renderArticles();
