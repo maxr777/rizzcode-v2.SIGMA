@@ -243,7 +243,7 @@ body {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 8px;
+    padding: 10px;
     border-radius: 50%;
     transition: background-color 0.3s;
     display: flex;
@@ -256,8 +256,8 @@ body {
 }
 
 .theme-icon {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     stroke: var(--text-color);
     transition: stroke 0.3s ease;
 }
