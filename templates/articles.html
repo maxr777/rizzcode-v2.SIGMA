@@ -218,7 +218,7 @@
             background: none;
             border: none;
             cursor: pointer;
-            padding: 8px;
+            padding: 10px;
             border-radius: 50%;
             transition: background-color 0.3s;
             display: flex;
@@ -231,8 +231,8 @@
         }
 
         .theme-icon {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             stroke: var(--text-color);
             transition: stroke 0.3s ease;
         }
@@ -312,6 +312,37 @@
             line-height: 1.6;
             margin-bottom: 15px;
         }
+
+      .header-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+      }
+
+      .logout-button {
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 10px;
+          border-radius: 50%;
+          transition: background-color 0.3s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-decoration: none;
+          color: var(--text-color);
+      }
+
+      .logout-button:hover {
+          background-color: var(--hover-color);
+      }
+
+      .logout-icon {
+          width: 24px;
+          height: 24px;
+          stroke: var(--text-color);
+          transition: stroke 0.3s ease;
+      }
     </style>
 </head>
 <body>
@@ -349,19 +380,28 @@
                     </div>
                 </div>
             </div>
-            <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
-                <svg class="theme-icon" id="themeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="5"></circle>
-                    <line x1="12" y1="1" x2="12" y2="3"></line>
-                    <line x1="12" y1="21" x2="12" y2="23"></line>
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                    <line x1="1" y1="12" x2="3" y2="12"></line>
-                    <line x1="21" y1="12" x2="23" y2="12"></line>
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                </svg>
-            </button>
+            <div class="header-actions">
+                <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+                    <svg class="theme-icon" id="themeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"/>
+                        <path d="m12 2 0 2"/>
+                        <path d="m12 20 0 2"/>
+                        <path d="m4.93 4.93 1.41 1.41"/>
+                        <path d="m17.66 17.66 1.41 1.41"/>
+                        <path d="m2 12 2 0"/>
+                        <path d="m20 12 2 0"/>
+                        <path d="m6.34 17.66-1.41 1.41"/>
+                        <path d="m19.07 4.93-1.41 1.41"/>
+                    </svg>
+                </button>
+                <a href="/logout" class="logout-button" aria-label="Logout">
+                    <svg class="logout-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                </a>
+            </div>
         </div>
 
         <div class="content-area">
@@ -416,7 +456,7 @@
         }
 
         document.getElementById('problemsButton').addEventListener('click', function() {
-            window.location.href = '/dashboard';
+            window.location.href = '/problems';
         });
 
         function renderArticles() {
@@ -472,10 +512,8 @@
 
         function updateThemeIcon(theme) {
             if (theme === 'dark') {
-                // Moon icon for dark mode
                 themeIcon.innerHTML = `<path d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'></path>`;
             } else {
-                // Sun icon for light mode
                 themeIcon.innerHTML = `
                     <circle cx='12' cy='12' r='5'></circle>
                     <line x1='12' y1='1' x2='12' y2='3'></line>

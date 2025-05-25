@@ -224,7 +224,7 @@ def load_user(user_id):
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('problems'))
     return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -256,12 +256,12 @@ def login():
             error = "The username or password you entered is incorrect. Please try again."
         else:
             login_user(user)
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('problems'))
     return render_template('login.html', error=error)
 
-@app.route('/dashboard')
+@app.route('/problems')
 @login_required
-def dashboard():
+def problems():
     problems = get_problems()
     completed_problem_ids = current_user.get_completed_problems()
     
