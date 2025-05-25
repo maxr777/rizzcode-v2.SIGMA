@@ -161,7 +161,7 @@ body {
 }
 
 .problem-item.selected,
-.article-item:selected {
+.article-item.selected {
     background-color: var(--primary-color);
     color: white;
 }
