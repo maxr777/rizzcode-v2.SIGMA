@@ -196,6 +196,15 @@ body {
     font-weight: 600;
     font-size: 14px;
 }
+.xp-badge {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 14px;
+}
 
 .alert {
     padding: 15px;
