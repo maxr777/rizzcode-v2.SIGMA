@@ -13,20 +13,100 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 db = SQLAlchemy(app)
 csrf = CSRFProtect(app)
 
-problems = [
-    {"id": 1, "title": "Two Sum", "difficulty": "Easy", "completed": True, "language": "javascript"},
-    {"id": 2, "title": "Add Two Numbers", "difficulty": "Medium", "completed": False, "language": "python"},
-    {"id": 3, "title": "Longest Substring Without Repeating Characters", "difficulty": "Medium", "completed": True, "language": "java"},
-    {"id": 4, "title": "Median of Two Sorted Arrays", "difficulty": "Hard", "completed": False, "language": "cpp"},
-    {"id": 5, "title": "Palindrome Number", "difficulty": "Easy", "completed": False, "language": "javascript"},
-    {"id": 6, "title": "Regular Expression Matching", "difficulty": "Hard", "completed": False, "language": "python"},
-    {"id": 7, "title": "Container With Most Water", "difficulty": "Medium", "completed": True, "language": "java"},
-    {"id": 8, "title": "Longest Palindromic Substring", "difficulty": "Medium", "completed": False, "language": "python"},
-    {"id": 9, "title": "String to Integer (atoi)", "difficulty": "Medium", "completed": False, "language": "cpp"},
-    {"id": 10, "title": "Merge k Sorted Lists", "difficulty": "Hard", "completed": False, "language": "java"},
-    {"id": 11, "title": "4Sum", "difficulty": "Medium", "completed": False, "language": "python"},
-    {"id": 12, "title": "Remove Nth Node From End of List", "difficulty": "Medium", "completed": False, "language": "javascript"}
-]
+def get_problems():
+    """Return the list of problems - shared between routes"""
+    return [
+        # Divide and Conquer
+        {
+            "id": 1,
+            "title": "Find Kth Smallest Element in Two Sorted Arrays",
+            "difficulty": "Hard",
+            "completed": False,
+            "type": "divide and conquer",
+            "content": (
+                "Given two sorted arrays nums1 and nums2 of size m and n respectively, "
+                "return the kth smallest element of the combined sorted array."
+            )
+        },
+        {
+            "id": 2,
+            "title": "Count Inversions in an Array",
+            "difficulty": "Medium",
+            "completed": False,
+            "type": "divide and conquer",
+            "content": (
+                "Given an array of integers, count the number of inversions needed to sort the array. "
+                "(An inversion is a pair (i, j) such that i < j and arr[i] > arr[j])."
+            )
+        },
+
+        # Graph Algorithms
+        {
+            "id": 3,
+            "title": "Number of Connected Components in an Undirected Graph",
+            "difficulty": "Medium",
+            "completed": False,
+            "type": "graph algorithms",
+            "content": (
+                "Given n nodes labeled from 0 to n-1 and a list of undirected edges, "
+                "return the number of connected components in the graph."
+            )
+        },
+        {
+            "id": 4,
+            "title": "Detect Cycle in a Directed Graph",
+            "difficulty": "Hard",
+            "completed": False,
+            "type": "graph algorithms",
+            "content": (
+                "Given a directed graph, determine if it contains any cycle."
+            )
+        },
+
+        # Dynamic Programming
+        {
+            "id": 5,
+            "title": "Longest Increasing Subsequence",
+            "difficulty": "Medium",
+            "completed": False,
+            "type": "dynamic programming",
+            "content": (
+                "Given an integer array nums, return the length of the longest strictly increasing subsequence."
+            )
+        },
+        {
+            "id": 6,
+            "title": "Edit Distance",
+            "difficulty": "Hard",
+            "completed": False,
+            "type": "dynamic programming",
+            "content": (
+                'Given two strings word1 and word2, return the minimum number of operations required to convert word1 to word2. '
+                'Operations allowed: insert, delete, replace a character.'
+            )
+        },
+
+        # Greedy Algorithms
+        {
+            "id": 7,
+            "title": "Interval Scheduling - Maximum Number of Non-overlapping Intervals",
+            "difficulty": "Medium", 
+            "completed": False,
+            "type": "greedy algorithms", 
+            "content": "Given a collection of intervals, find the maximum number of intervals you can select without any overlaps."
+        },
+        {
+            "id": 8,
+            "title": "Huffman Encoding - Build Huffman Tree Length",
+            "difficulty": "Hard", 
+            "completed": False, 
+            "type": "greedy algorithms", 
+            "content": (
+              'Given frequencies for characters, build a Huffman tree and return the total length (sum of frequency * depth) '
+              'of encoding.'
+            )
+        }
+    ]
 
 login_manager = LoginManager()
 login_manager.login_view = 'login'  # Redirect to login if not authenticated
@@ -83,10 +163,8 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    # Example: problems could come from DB; here is a static list for demo
-    def index():
-        return render_template('your_template.html', problems=problems, username='Alice', level=5)
-
+    problems = get_problems()
+    
     # Calculate progress percentage
     completed_count = sum(p['completed'] for p in problems)
     total_problems = len(problems)
@@ -98,6 +176,15 @@ def dashboard():
                            progress=progress,
                            problems=problems)
 
+@app.route('/problems')
+@login_required
+def problem_page():
+    problems = get_problems()
+    
+    return render_template('problems.html', 
+                          username=current_user.username, 
+                          level=current_user.level,
+                          problems=problems)
 
 @app.route('/logout')
 @login_required

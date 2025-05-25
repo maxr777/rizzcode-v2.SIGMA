@@ -84,7 +84,7 @@
             align-items: center;
         }
 
-        .language-dropdown {
+        .type-dropdown {
             flex: 1;
             padding: 6px 10px;
             border-radius: 4px;
@@ -96,7 +96,7 @@
             transition: border-color 0.3s, background-color 0.3s, color 0.3s;
         }
 
-        .language-dropdown:hover, .language-dropdown:focus {
+        .type-dropdown:hover, .type-dropdown:focus {
             border-color: var(--primary-color);
             outline: none;
         }
@@ -351,7 +351,7 @@
             border-color: var(--primary-color);
         }
 
-        .run-button {
+        .submit-button {
             margin-top: 15px;
             padding: 10px 24px;
             background-color: var(--success-color);
@@ -364,7 +364,7 @@
             transition: background-color 0.3s;
         }
 
-        .run-button:hover {
+        .submit-button:hover {
             background-color: #45a049;
         }
     </style>
@@ -374,14 +374,15 @@
         <div class="problem-panel-header">
             <h2>Problem List</h2>
             <div class="dropdown-container">
-                <select id="languageDropdown" class="language-dropdown">
-                    <option value="all">All Languages</option>
-                    <option value="javascript">JavaScript</option>
-                    <option value="python">Python</option>
-                    <option value="java">Java</option>
-                    <option value="cpp">C++</option>
-                    <option value="ruby">Ruby</option>
-                    <option value="go">Go</option>
+                <select id="typeDropdown" class="type-dropdown">
+                    <option value="all">All Types</option>
+                    <option value="divide and conquer">Divide and Conquer</option>
+                    <option value="graph algorithms">Graph Algorithms</option>
+                    <option value="dynamic programming">Dynamic Programming</option>
+                    <option value="greedy algorithms">Greedy Algorithms</option>
+                    <option value="backtracking">Backtracking</option>
+                    <option value="tree algorithms">Tree Algorithms</option>
+                    <option value="sorting algorithms">Sorting Algorithms</option>
                 </select>
                 <button class="nav-button" id="articlesButton">Articles</button>
             </div>
@@ -395,7 +396,7 @@
     <div class="main-content">
         <div class="header-bar">
             <div class="user-info">
-          <span><a href="/profile">{{ username }}</a> | Level {{ level }}</span>
+                <span><a href="/profile">{{ username }}</a> | Level {{ level }}</span>
             </div>
             <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
                 <svg class="theme-icon" id="themeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -415,8 +416,8 @@
         <div class="content-area">
             <div id="problemContent">
                 <div class="welcome-message">
-                    <h2>Welcome to Coding Practice Platform</h2>
-                    <p>Select a problem from the list to get started.</p>
+                    <h2>Welcome to Algorithm Practice Platform</h2>
+                    <p>Select a problem from the list to get started. Each problem has one clear solution.</p>
                 </div>
             </div>
         </div>
@@ -424,7 +425,7 @@
 
 <script>
 document.getElementById('articlesButton').addEventListener('click', function() {
-  window.location.href = '/articles';
+    window.location.href = '/articles';
 });
 
 const problems = [
@@ -434,7 +435,8 @@ const problems = [
         title: "{{ problem.title }}", 
         difficulty: "{{ problem.difficulty }}", 
         completed: {{ problem.completed|lower }}, 
-        language: "{{ problem.language }}" 
+        type: "{{ problem.type }}",
+        content: "{{ problem.content|e }}"
     }{% if not loop.last %},{% endif %}
     {% endfor %}
 ];
@@ -443,11 +445,11 @@ let selectedProblemId = null;
 
 function renderProblems() {
     const problemList = document.getElementById('problemList');
-    const languageFilter = document.getElementById('languageDropdown').value;
+    const typeFilter = document.getElementById('typeDropdown').value;
     
-    const filteredProblems = languageFilter === 'all' 
+    const filteredProblems = typeFilter === 'all' 
         ? problems 
-        : problems.filter(p => p.language === languageFilter);
+        : problems.filter(p => p.type === typeFilter);
 
     problemList.innerHTML = filteredProblems.map(problem => `
         <div class="problem-item ${problem.completed ? 'completed' : ''} ${selectedProblemId === problem.id ? 'selected' : ''}" 
@@ -458,181 +460,11 @@ function renderProblems() {
                    onclick="event.stopPropagation(); toggleProblemCompletion(${problem.id});">
             <div class="problem-text">
                 <strong>${problem.title}</strong><br>
-                <small>${problem.difficulty} • ${problem.language.charAt(0).toUpperCase() + problem.language.slice(1)}</small>
+                <small>${problem.difficulty} • ${problem.type.charAt(0).toUpperCase() + problem.type.slice(1)}</small>
             </div>
         </div>
     `).join('');
 }
-
-const problemDetails = {
-    1: {
-        description: "Given an array of integers <code>nums</code> and an integer <code>target</code>, return indices of the two numbers such that they add up to target.",
-        additionalInfo: "You may assume that each input would have exactly one solution, and you may not use the same element twice. You can return the answer in any order.",
-        examples: `Input: nums = [2,7,11,15], target = 9
-Output: [0,1]
-Explanation: Because nums[0] + nums[1] == 9, we return [0, 1].
-
-Input: nums = [3,2,4], target = 6
-Output: [1,2]
-
-Input: nums = [3,3], target = 6
-Output: [0,1]`,
-        constraints: "• 2 ≤ nums.length ≤ 10⁴<br>• -10⁹ ≤ nums[i] ≤ 10⁹<br>• -10⁹ ≤ target ≤ 10⁹<br>• Only one valid answer exists."
-    },
-    2: {
-        description: "You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit.",
-        additionalInfo: "Add the two numbers and return the sum as a linked list. You may assume the two numbers do not contain any leading zero, except the number 0 itself.",
-        examples: `Input: l1 = [2,4,3], l2 = [5,6,4]
-Output: [7,0,8]
-Explanation: 342 + 465 = 807.
-
-Input: l1 = [0], l2 = [0]
-Output: [0]
-
-Input: l1 = [9,9,9,9,9,9,9], l2 = [9,9,9,9]
-Output: [8,9,9,9,0,0,0,1]`,
-        constraints: "• The number of nodes in each linked list is in range [1, 100]<br>• 0 ≤ Node.val ≤ 9<br>• It is guaranteed that the list represents a number that does not have leading zeros."
-    },
-    3: {
-        description: "Given a string <code>s</code>, find the length of the longest substring without repeating characters.",
-        additionalInfo: "A substring is a contiguous non-empty sequence of characters within a string.",
-        examples: `Input: s = "abcabcbb"
-Output: 3
-Explanation: The answer is "abc", with the length of 3.
-
-Input: s = "bbbbb"
-Output: 1
-Explanation: The answer is "b", with the length of 1.
-
-Input: s = "pwwkew"
-Output: 3
-Explanation: The answer is "wke", with the length of 3.`,
-        constraints: "• 0 ≤ s.length ≤ 5 × 10⁴<br>• s consists of English letters, digits, symbols and spaces."
-    },
-    4: {
-        description: "Given two sorted arrays <code>nums1</code> and <code>nums2</code> of size <code>m</code> and <code>n</code> respectively, return the median of the two sorted arrays.",
-        additionalInfo: "The overall run time complexity should be O(log (m+n)).",
-        examples: `Input: nums1 = [1,3], nums2 = [2]
-Output: 2.00000
-Explanation: merged array = [1,2,3] and median is 2.
-
-Input: nums1 = [1,2], nums2 = [3,4]
-Output: 2.50000
-Explanation: merged array = [1,2,3,4] and median is (2 + 3) / 2 = 2.5.`,
-        constraints: "• nums1.length == m<br>• nums2.length == n<br>• 0 ≤ m ≤ 1000<br>• 0 ≤ n ≤ 1000<br>• 1 ≤ m + n ≤ 2000<br>• -10⁶ ≤ nums1[i], nums2[i] ≤ 10⁶"
-    },
-    5: {
-        description: "Given an integer <code>x</code>, return <code>true</code> if <code>x</code> is a palindrome, and <code>false</code> otherwise.",
-        additionalInfo: "An integer is a palindrome when it reads the same backward as forward.",
-        examples: `Input: x = 121
-Output: true
-Explanation: 121 reads as 121 from left to right and from right to left.
-
-Input: x = -121
-Output: false
-Explanation: From left to right, it reads -121. From right to left, it becomes 121-. Therefore it is not a palindrome.
-
-Input: x = 10
-Output: false
-Explanation: Reads 01 from right to left. Therefore it is not a palindrome.`,
-        constraints: "• -2³¹ ≤ x ≤ 2³¹ - 1"
-    },
-    6: {
-        description: "Given an input string <code>s</code> and a pattern <code>p</code>, implement regular expression matching with support for <code>'.'</code> and <code>'*'</code> where:",
-        additionalInfo: "• '.' Matches any single character.<br>• '*' Matches zero or more of the preceding element.<br>The matching should cover the entire input string (not partial).",
-        examples: `Input: s = "aa", p = "a"
-Output: false
-Explanation: "a" does not match the entire string "aa".
-
-Input: s = "aa", p = "a*"
-Output: true
-Explanation: '*' means zero or more of the preceding element, 'a'. Therefore, by repeating 'a' once, it becomes "aa".
-
-Input: s = "ab", p = ".*"
-Output: true
-Explanation: ".*" means "zero or more (*) of any character (.)".`,
-        constraints: "• 1 ≤ s.length ≤ 20<br>• 1 ≤ p.length ≤ 20<br>• s contains only lowercase English letters<br>• p contains only lowercase English letters, '.', and '*'"
-    },
-    7: {
-        description: "You are given an integer array <code>height</code> of length <code>n</code>. There are <code>n</code> vertical lines drawn such that the two endpoints of the <code>i<sup>th</sup></code> line are <code>(i, 0)</code> and <code>(i, height[i])</code>.",
-        additionalInfo: "Find two lines that together with the x-axis form a container that contains the most water. Return the maximum amount of water a container can store.",
-        examples: `Input: height = [1,8,6,2,5,4,8,3,7]
-Output: 49
-Explanation: The above vertical lines are represented by array [1,8,6,2,5,4,8,3,7]. In this case, the max area of water (blue section) the container can contain is 49.
-
-Input: height = [1,1]
-Output: 1`,
-        constraints: "• n == height.length<br>• 2 ≤ n ≤ 10⁵<br>• 0 ≤ height[i] ≤ 10⁴"
-    },
-    8: {
-        description: "Given a string <code>s</code>, return the longest palindromic substring in <code>s</code>.",
-        additionalInfo: "A palindrome is a string that reads the same forward and backward.",
-        examples: `Input: s = "babad"
-Output: "bab"
-Explanation: "aba" is also a valid answer.
-
-Input: s = "cbbd"
-Output: "bb"`,
-        constraints: "• 1 ≤ s.length ≤ 1000<br>• s consist of only digits and English letters."
-    },
-    9: {
-        description: "Implement the <code>myAtoi(string s)</code> function, which converts a string to a 32-bit signed integer (similar to C/C++'s <code>atoi</code> function).",
-        additionalInfo: "The algorithm for myAtoi(string s) is as follows: Read in and ignore any leading whitespace, check if the next character is '-' or '+', read in next characters until the next non-digit character or end of input, convert to integer and clamp to 32-bit signed integer range.",
-        examples: `Input: s = "42"
-Output: 42
-
-Input: s = "   -42"
-Output: -42
-
-Input: s = "4193 with words"
-Output: 4193`,
-        constraints: "• 0 ≤ s.length ≤ 200<br>• s consists of English letters (lower-case and upper-case), digits (0-9), ' ', '+', '-', and '.'."
-    },
-    10: {
-        description: "You are given an array of <code>k</code> linked-lists <code>lists</code>, each linked-list is sorted in ascending order.",
-        additionalInfo: "Merge all the linked-lists into one sorted linked-list and return it.",
-        examples: `Input: lists = [[1,4,5],[1,3,4],[2,6]]
-Output: [1,1,2,3,4,4,5,6]
-Explanation: The linked-lists are:
-[
-  1->4->5,
-  1->3->4,
-  2->6
-]
-merging them into one sorted list:
-1->1->2->3->4->4->5->6
-
-Input: lists = []
-Output: []
-
-Input: lists = [[]]
-Output: []`,
-        constraints: "• k == lists.length<br>• 0 ≤ k ≤ 10⁴<br>• 0 ≤ lists[i].length ≤ 500<br>• -10⁴ ≤ lists[i][j] ≤ 10⁴<br>• lists[i] is sorted in ascending order<br>• The sum of lists[i].length will not exceed 10⁴."
-    },
-    11: {
-        description: "Given an array <code>nums</code> of <code>n</code> integers, return an array of all the unique quadruplets <code>[nums[a], nums[b], nums[c], nums[d]]</code> such that:",
-        additionalInfo: "• 0 ≤ a, b, c, d < n<br>• a, b, c, and d are distinct<br>• nums[a] + nums[b] + nums[c] + nums[d] == target",
-        examples: `Input: nums = [1,0,-1,0,-2,2], target = 0
-Output: [[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]
-
-Input: nums = [2,2,2,2,2], target = 8
-Output: [[2,2,2,2]]`,
-        constraints: "• 1 ≤ nums.length ≤ 200<br>• -10⁹ ≤ nums[i] ≤ 10⁹<br>• -10⁹ ≤ target ≤ 10⁹"
-    },
-    12: {
-        description: "Given the head of a linked list, remove the <code>n<sup>th</sup></code> node from the end of the list and return its head.",
-        additionalInfo: "Try to do this in one pass.",
-        examples: `Input: head = [1,2,3,4,5], n = 2
-Output: [1,2,3,5]
-
-Input: head = [1], n = 1
-Output: []
-
-Input: head = [1,2], n = 1
-Output: [1]`,
-        constraints: "• The number of nodes in the list is sz<br>• 1 ≤ sz ≤ 30<br>• 0 ≤ Node.val ≤ 100<br>• 1 ≤ n ≤ sz"
-    }
-};
 
 function selectProblem(problemId) {
     selectedProblemId = problemId;
@@ -641,7 +473,6 @@ function selectProblem(problemId) {
 
     const problemContentElement = document.getElementById('problemContent');
     const difficultyClass = `difficulty-${problem.difficulty.toLowerCase()}`;
-    const details = problemDetails[problemId] || problemDetails[1]; // Fallback to Two Sum details
     
     problemContentElement.innerHTML = `
         <div class="problem-detail">
@@ -653,71 +484,31 @@ function selectProblem(problemId) {
                     <div class="meta-value ${difficultyClass}">${problem.difficulty}</div>
                 </div>
                 <div class="meta-item">
-                    <div class="meta-label">Language</div>
-                    <div class="meta-value">${problem.language.charAt(0).toUpperCase() + problem.language.slice(1)}</div>
+                    <div class="meta-label">Type</div>
+                    <div class="meta-value">${problem.type.charAt(0).toUpperCase() + problem.type.slice(1)}</div>
                 </div>
                 <div class="meta-item">
                     <div class="meta-label">Status</div>
-                    <div class="meta-value">${problem.completed ? '✅ Completed' : '⏳ In Progress'}</div>
+                    <div class="meta-value">${problem.completed ? '✅ Completed' : '⏳ Not Started'}</div>
                 </div>
             </div>
 
             <div class="section">
                 <h3>Problem Description</h3>
-                <p>${details.description}</p>
-                ${details.additionalInfo ? `<p>${details.additionalInfo}</p>` : ''}
+                <p>${problem.content}</p>
             </div>
 
             <div class="section">
-                <h3>Examples</h3>
-                <pre>${details.examples}</pre>
-            </div>
-
-            <div class="section">
-                <h3>Constraints</h3>
-                <p>${details.constraints}</p>
-            </div>
-
-            <div class="section">
-                <h3>Solution</h3>
+                <h3>Solution Approach</h3>
                 <div class="solution-area">
-                    <textarea placeholder="Write your solution here...">${getSampleCode(problem.language)}</textarea>
-                    <button class="run-button">Run Code</button>
+                    <textarea placeholder="Describe your approach and solution here..."></textarea>
+                    <button class="submit-button">Submit Solution</button>
                 </div>
             </div>
         </div>
     `;
     
-    renderProblems(); // Re-render to update selection
-}
-
-function getSampleCode(language) {
-    const samples = {
-        javascript: `function twoSum(nums, target) {
-    // Your solution here
-    
-}`,
-        python: `def two_sum(nums, target):
-    # Your solution here
-    pass`,
-        java: `public int[] twoSum(int[] nums, int target) {
-    // Your solution here
-    
-}`,
-        cpp: `vector<int> twoSum(vector<int>& nums, int target) {
-    // Your solution here
-    
-}`,
-        ruby: `def two_sum(nums, target)
-    # Your solution here
-    
-end`,
-        go: `func twoSum(nums []int, target int) []int {
-    // Your solution here
-    
-}`
-    };
-    return samples[language] || '// Your solution here';
+    renderProblems();
 }
 
 function toggleProblemCompletion(problemId) {
@@ -726,7 +517,6 @@ function toggleProblemCompletion(problemId) {
         problem.completed = !problem.completed;
         renderProblems();
         
-        // Update the problem detail view if this problem is currently selected
         if (selectedProblemId === problemId) {
             selectProblem(problemId);
         }
@@ -740,10 +530,8 @@ const htmlElement = document.documentElement;
 
 function updateThemeIcon(theme) {
     if (theme === 'dark') {
-        // Moon icon for dark mode
         themeIcon.innerHTML = `<path d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'></path>`;
     } else {
-        // Sun icon for light mode
         themeIcon.innerHTML = `
             <circle cx='12' cy='12' r='5'></circle>
             <line x1='12' y1='1' x2='12' y2='3'></line>
@@ -758,8 +546,6 @@ function updateThemeIcon(theme) {
 }
 
 let isDarkMode = false;
-
-// Load saved preference or use in-memory storage
 let currentTheme = 'light';
 try {
     const savedTheme = localStorage.getItem('theme');
@@ -767,9 +553,7 @@ try {
         currentTheme = savedTheme;
         isDarkMode = savedTheme === 'dark';
     }
-} catch (e) {
-    // localStorage not available, use default
-}
+} catch (e) {}
 
 htmlElement.setAttribute('data-theme', currentTheme);
 updateThemeIcon(currentTheme);
@@ -783,15 +567,13 @@ themeToggle.addEventListener('click', () => {
     
     try {
         localStorage.setItem('theme', newTheme);
-    } catch (e) {
-        // localStorage not available, theme will reset on reload
-    }
+    } catch (e) {}
     
     updateThemeIcon(newTheme);
 });
 
-// Language filter functionality
-document.getElementById('languageDropdown').addEventListener('change', renderProblems);
+// Type filter functionality
+document.getElementById('typeDropdown').addEventListener('change', renderProblems);
 
 // Initialize the app
 renderProblems();
